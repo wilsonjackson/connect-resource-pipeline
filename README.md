@@ -1,6 +1,8 @@
 connect-preprocess
 ==================
 
+[![Build Status](https://travis-ci.org/wilsonjackson/connect-preprocess.svg?branch=master)](https://travis-ci.org/wilsonjackson/connect-preprocess)
+
 Middleware for Connect to allow arbitrary preprocessing (with streams!)
 
 This middleware was written to support development with [gulp.js](http://gulpjs.com/), and is not at all (not even a
