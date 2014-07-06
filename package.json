@@ -1,0 +1,40 @@
+{
+  "name": "connect-preprocess",
+  "version": "0.0.1",
+  "description": "Middleware for Connect to allow arbitrary preprocessing (with streams!)",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wilsonjackson/connect-preprocess.git"
+  },
+  "keywords": [
+    "connect",
+    "middleware",
+    "preprocess",
+    "gulpfriendly",
+    "development"
+  ],
+  "author": "Majid Burney <majid@euphoricsoup.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/wilsonjackson/connect-preprocess/issues"
+  },
+  "devDependencies": {
+    "mocha": "~1.20.1",
+    "gulp": "~3.8.5",
+    "gulp-mocha": "~0.4.1",
+    "gulp-jshint": "~1.6.4",
+    "chai": "~1.9.1",
+    "q": "~1.0.1",
+    "gulp-istanbul": "~0.2.0"
+  },
+  "dependencies": {
+    "through2": "~0.5.1",
+    "vinyl-fs": "~0.3.4",
+    "terminus": "~1.0.10",
+    "mime": "~1.2.11"
+  }
+}

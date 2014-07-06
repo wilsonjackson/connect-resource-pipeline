@@ -1,4 +1,4 @@
 connect-preprocess
 ==================
 
-Middleware for connect to allow arbitrary preprocessing (with streams!)
+Middleware for Connect to allow arbitrary preprocessing (with streams!)
