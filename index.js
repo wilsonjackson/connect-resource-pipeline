@@ -30,7 +30,8 @@ function sendThroughPipes(files, factories, res, next, urlPath) {
 			}
 			else {
 				// If no files were matched, forward to next middleware (but issue a warning)
-				console.warn('preprocess matched URL "' + urlPath + '" but found no files matching [' + files + ']');
+				console.warn('connect-resource-pipeline matched URL "' + urlPath + '" but found no files matching [' +
+					files + ']');
 				next();
 			}
 		}));
@@ -46,7 +47,7 @@ function resolveFilePaths(root, files) {
 	});
 }
 
-function preprocessor(options, targets) {
+function resourcePipeline(options, targets) {
 	if (util.isArray(options)) {
 		targets = options;
 		options = {};
@@ -69,4 +70,4 @@ function preprocessor(options, targets) {
 	};
 }
 
-module.exports = preprocessor;
+module.exports = resourcePipeline;

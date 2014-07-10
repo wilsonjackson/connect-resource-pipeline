@@ -1,9 +1,9 @@
-connect-preprocess
-==================
+connect-resource-pipeline
+=========================
 
-[![Build Status](https://travis-ci.org/wilsonjackson/connect-preprocess.svg?branch=master)](https://travis-ci.org/wilsonjackson/connect-preprocess)
+[![Build Status](https://travis-ci.org/wilsonjackson/connect-resource-pipeline.svg?branch=master)](https://travis-ci.org/wilsonjackson/connect-resource-pipeline)
 
-Middleware for Connect to allow arbitrary preprocessing (with streams!)
+Middleware for Connect to allow resource transformation via streams.
 
 This middleware was written to support development with [gulp.js](http://gulpjs.com/), and is not at all (not even a
 little bit) intended to be used standalone or in any kind of production capacity. So don't do that.
@@ -13,7 +13,7 @@ Instead, do this:
 ```js
 var gulp = require('gulp');
 var connect = require('gulp-connect');
-var preprocess = require('../connect-preprocess');
+var resourcePipeline = require('connect-resource-pipeline');
 var less = require('gulp-less');
 
 gulp.task('serve', function () {
@@ -21,8 +21,8 @@ gulp.task('serve', function () {
 		root: 'public',
 		middleware: function (connect) {
 			return [
-				// Use the preprocess middleware
-				connect().use(preprocess({root: 'public'}, [
+				// Use the resource pipeline middleware
+				connect().use(resourcePipeline({root: 'public'}, [
 					// Define URLs to match and map them to globs (that are automatically concatenated)
 					{url: '/all.js', files: ['js/*.js']},
 					// Pipe through your favorite gulp plugins!
@@ -37,7 +37,7 @@ gulp.task('serve', function () {
 API
 ---
 
-### preprocess([options, ] targets)
+### resourcePipeline([options, ] targets)
 
 #### `options`
 
@@ -64,8 +64,8 @@ it is assigned into the `factories` array. This is by design, as it's common pra
 with re-use in mind; they're meant to be invoked, piped to, and forgotten. As such, reusing a plugin may have unintended
 side effects.
 
-To accommodate this, plugins are provided to `preprocess` as `factories`. Normally a factory is just a reference to the
-plugin function, as above. If you need to pass arguments to the plugin, use `bind` like so:
+To accommodate this, plugins are provided to `resource-pipeline` as `factories`. Normally a factory is just a reference
+to the plugin function, as above. If you need to pass arguments to the plugin, use `bind` like so:
 
 ```js
 {
@@ -89,4 +89,4 @@ could use the same plugins your build uses as part of a dynamic dev server? Yes,
 License
 -------
 
-View the [LICENSE](https://github.com/wilsonjackson/connect-preprocess/blob/master/LICENSE) file.
+View the [LICENSE](https://github.com/wilsonjackson/connect-resource-pipeline/blob/master/LICENSE) file.

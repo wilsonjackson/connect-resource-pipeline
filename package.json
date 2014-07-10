@@ -1,26 +1,28 @@
 {
-  "name": "connect-preprocess",
+  "name": "connect-resource-pipeline",
   "version": "0.0.1",
-  "description": "Middleware for Connect to allow arbitrary preprocessing (with streams!)",
+  "description": "Middleware for Connect to allow resource transformation via streams.",
   "main": "index.js",
   "scripts": {
     "test": "mocha"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/wilsonjackson/connect-preprocess.git"
+    "url": "https://github.com/wilsonjackson/connect-resource-pipeline.git"
   },
   "keywords": [
     "connect",
     "middleware",
-    "preprocess",
+    "resource",
+    "pipeline",
+    "stream",
     "gulpfriendly",
     "development"
   ],
   "author": "Majid Burney <majid@euphoricsoup.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/wilsonjackson/connect-preprocess/issues"
+    "url": "https://github.com/wilsonjackson/connect-resource-pipeline/issues"
   },
   "devDependencies": {
     "mocha": "~1.20.1",

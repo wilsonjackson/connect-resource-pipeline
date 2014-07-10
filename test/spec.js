@@ -1,12 +1,12 @@
 /* global describe, it */
 var expect = require('chai').expect;
-var preprocess = require('..');
+var resourcePipeline = require('..');
 var fs = require('fs');
 var path = require('path');
 var Q = require('q');
 var through = require('through2');
 
-describe('Connect preprocess middleware', function () {
+describe('Connect resource pipeline middleware', function () {
 	this.timeout(1000);
 
 	function testMiddleware(url, middleware) {
@@ -56,7 +56,7 @@ describe('Connect preprocess middleware', function () {
 
 	it('should forward to next middleware when no files are found', function (done) {
 		var url = '/test/fixtures/non-existent-file.html';
-		testMiddleware(url, preprocess([{url: url}]))
+		testMiddleware(url, resourcePipeline([{url: url}]))
 			.verify(function (result) {
 				expect(result.endWasCalled).to.equal(false, 'Response should not have been called');
 				expect(result.nextWasCalled).to.equal(true, 'Next should have been called');
@@ -64,7 +64,7 @@ describe('Connect preprocess middleware', function () {
 	});
 
 	it('should forward to next middleware when there is no URL match', function (done) {
-		testMiddleware('/the-current-url', preprocess([{url: '/not-the-current-url'}]))
+		testMiddleware('/the-current-url', resourcePipeline([{url: '/not-the-current-url'}]))
 			.verify(function (result) {
 				expect(result.endWasCalled).to.equal(false, 'Response should not have been called');
 				expect(result.nextWasCalled).to.equal(true, 'Next should have been called');
@@ -73,7 +73,7 @@ describe('Connect preprocess middleware', function () {
 
 	it('should match and serve a static url', function (done) {
 		var url = '/test/fixtures/file.html';
-		testMiddleware(url, preprocess([{url: url}]))
+		testMiddleware(url, resourcePipeline([{url: url}]))
 			.verify(function (result) {
 				expect(result.nextWasCalled).to.equal(false, 'Next should not have been called');
 				expect(result.content).to.equal(readFile('test/fixtures/file.html'));
@@ -83,7 +83,7 @@ describe('Connect preprocess middleware', function () {
 	it('should match and serve a regex url', function (done) {
 		var url = '/test/fixtures/file2.html';
 		var re = /^\/test\/.*\/\w+2\.html/;
-		testMiddleware(url, preprocess([{url: re}]))
+		testMiddleware(url, resourcePipeline([{url: re}]))
 			.verify(function (result) {
 				expect(result.nextWasCalled).to.equal(false, 'Next should not have been called');
 				expect(result.content).to.equal(readFile('test/fixtures/file2.html'));
@@ -92,7 +92,7 @@ describe('Connect preprocess middleware', function () {
 
 	it('should set a mime type based on the requested file\'s extension', function (done) {
 		var url = '/test/fixtures/file.html';
-		testMiddleware(url, preprocess([{url: url}]))
+		testMiddleware(url, resourcePipeline([{url: url}]))
 			.verify(function (result) {
 				expect(result.headers['Content-Type']).to.match(/^text\/html/);
 			}, done);
@@ -100,7 +100,7 @@ describe('Connect preprocess middleware', function () {
 
 	it('should serve explicitly specified files', function (done) {
 		var url = '/';
-		testMiddleware(url, preprocess([{url: url, files: ['test/fixtures/file2.html']}]))
+		testMiddleware(url, resourcePipeline([{url: url, files: ['test/fixtures/file2.html']}]))
 			.verify(function (result) {
 				expect(result.nextWasCalled).to.equal(false, 'Next should not have been called');
 				expect(result.content).to.equal(readFile('test/fixtures/file2.html'));
@@ -109,7 +109,7 @@ describe('Connect preprocess middleware', function () {
 
 	it('should serve multiple concatenated files', function (done) {
 		var url = '/';
-		var middleware = preprocess([
+		var middleware = resourcePipeline([
 			{url: url, files: ['test/fixtures/file.html', 'test/fixtures/file2.html']}
 		]);
 		testMiddleware(url, middleware)
@@ -130,7 +130,7 @@ describe('Connect preprocess middleware', function () {
 				cb();
 			});
 		}
-		var middleware = preprocess([{url: url, factories: [replaceContent]}]);
+		var middleware = resourcePipeline([{url: url, factories: [replaceContent]}]);
 		testMiddleware(url, middleware)
 			.verify(function (result) {
 				expect(result.nextWasCalled).to.equal(false, 'Next should not have been called');
@@ -142,7 +142,7 @@ describe('Connect preprocess middleware', function () {
 		it('should apply a root directory to implicitly matched files', function (done) {
 			var root = './test';
 			var url = '/fixtures/file.html';
-			var middleware = preprocess({root: root}, [{url: url}]);
+			var middleware = resourcePipeline({root: root}, [{url: url}]);
 			testMiddleware(url, middleware)
 				.verify(function (result) {
 					expect(result.content).to.equal(readFile('test/fixtures/file.html'));
@@ -151,7 +151,7 @@ describe('Connect preprocess middleware', function () {
 
 		it('should apply a root directory to explicitly matched files', function (done) {
 			var url = '/';
-			var middleware = preprocess({root: './test'}, [
+			var middleware = resourcePipeline({root: './test'}, [
 				{url: url, files: ['fixtures/file.html', 'fixtures/file2.html']}
 			]);
 			testMiddleware(url, middleware)
@@ -164,7 +164,7 @@ describe('Connect preprocess middleware', function () {
 		it('should not prefix a root directory on absolute file paths', function (done) {
 			var url = '/';
 			var absPath = path.resolve('test/fixtures/file.html');
-			var middleware = preprocess({root: './test'}, [{url: url, files: absPath}]);
+			var middleware = resourcePipeline({root: './test'}, [{url: url, files: absPath}]);
 			testMiddleware(url, middleware)
 				.verify(function (result) {
 					expect(result.content).to.equal(readFile('test/fixtures/file.html'));
