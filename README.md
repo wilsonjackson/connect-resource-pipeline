@@ -43,17 +43,27 @@ API
 
 An object which may contain:
 
-- `path`: Will be used to prefix all non-absolute paths in `files`, or the URL path if `files` is empty.
+- `path`
+
+    Will be used to prefix all non-absolute paths in `files`, or the URL path if `files` is empty.
 
 #### `targets`
  
 An array that defines URLs to be matched and what to return as a response. Each entry is an object comprised of:
 
-- `url`: The URL to match. May be a string or a regex. Matched against `url.parse(req.url).pathname`.
-- `files` (optional): A string or array of strings containing file paths to match. Uses `vinyl-fs` under the hood, so
-  globs are allowed. If omitted, the `pathname` of the request will be used.
-- `factories` (optional): An array of factories that produce processors (gulp plugins). The matched `files` will be
-  piped through each factory's plugin, in order, before being concatenated and sent as a response.
+- `url`
+
+    The URL to match. May be a string or a regex. Matched against `url.parse(req.url).pathname`.
+
+- `files` (optional)
+
+    A string or array of strings containing file paths to match. Uses `vinyl-fs` under the hood, so
+    globs are allowed. If omitted, the `pathname` of the request will be used.
+
+- `factories` (optional)
+
+    An array of factories that produce processors (gulp plugins). The matched `files` will be
+    piped through each factory's plugin, in order, before being concatenated and sent as a response.
 
 
 Not quite the same as piping to plugins during a build
@@ -85,8 +95,3 @@ Rationale
 
 Sometimes doing neat things with your build makes running a local development server harder. Wouldn't it be nice if you
 could use the same plugins your build uses as part of a dynamic dev server? Yes, it would.
-
-License
--------
-
-View the [LICENSE](https://github.com/wilsonjackson/connect-resource-pipeline/blob/master/LICENSE) file.
