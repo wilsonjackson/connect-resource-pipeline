@@ -26,7 +26,9 @@ gulp.task('serve', function () {
 					// Define URLs to match and map them to globs (that are automatically concatenated)
 					{url: '/all.js', files: ['js/*.js']},
 					// Pipe through your favorite gulp plugins!
-					{url: '/styles.css', files: ['less/*.less'], factories: [less]}
+					{url: '/styles.css', files: ['less/*.less'], pipeline: function (files) {
+						return files.pipe(less());
+					}}
 				]))
 			];
 		}
@@ -60,30 +62,17 @@ An array that defines URLs to be matched and what to return as a response. Each 
     A string or array of strings containing file paths to match. Uses `vinyl-fs` under the hood, so
     globs are allowed. If omitted, the `pathname` of the request will be used.
 
-- `factories` (optional)
+- `pipeline` (optional)
+
+    A function that takes a stream of files as an argument and returns the result stream.
+
+- ___DEPRECATED___ `factories` (optional)
 
     An array of factories that produce processors (gulp plugins). The matched `files` will be
     piped through each factory's plugin, in order, before being concatenated and sent as a response.
+    
+    _This functionality has been deprecated in favor of the far more flexible and gulp-like `pipelines` property._
 
-
-Not quite the same as piping to plugins during a build
-------------------------------------------------------
-
-If you're particularly attentive, you may have noticed in the above example that the less plugin is not _invoked_ before
-it is assigned into the `factories` array. This is by design, as it's common practice for gulp plugins not to be written
-with re-use in mind; they're meant to be invoked, piped to, and forgotten. As such, reusing a plugin may have unintended
-side effects.
-
-To accommodate this, plugins are provided to `resource-pipeline` as `factories`. Normally a factory is just a reference
-to the plugin function, as above. If you need to pass arguments to the plugin, use `bind` like so:
-
-```js
-{
-	url: '/styles.css',
-	files: ['less/*.less'],
-	factories: [less.bind(null, {paths: ['public/less/includes']})]
-}
-```
 
 Connect compatibility
 ---------------------

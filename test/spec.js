@@ -154,22 +154,42 @@ describe('Connect resource pipeline middleware', function () {
 			}, done);
 	});
 
-	it('should pipe content through user-defined processors', function (done) {
-		var url = '/test/fixtures/file.html';
-		var newContent = 'This information has been changed.';
-		function replaceContent() {
+	describe('when processing content', function () {
+		function replaceContent(newContent) {
 			return through.obj(function (file, enc, cb) {
 				file.contents = new Buffer(newContent, 'utf-8');
 				this.push(file);
 				cb();
 			});
 		}
-		var middleware = resourcePipeline([{url: url, factories: [replaceContent]}]);
-		testMiddleware(url, middleware)
-			.verify(function (result) {
-				expect(result.nextWasCalled).to.equal(false, 'Next should not have been called');
-				expect(result.content).to.equal(newContent);
-			}, done);
+
+		describe('using a pipeline', function () {
+			it('should pipe content through the user-provided pipeline', function (done) {
+				var url = '/test/fixtures/file.html';
+				var newContent = 'This information has been changed.';
+				var middleware = resourcePipeline([{url: url, pipeline: function (files) {
+					return files.pipe(replaceContent(newContent));
+				}}]);
+				testMiddleware(url, middleware)
+					.verify(function (result) {
+						expect(result.nextWasCalled).to.equal(false, 'Next should not have been called');
+						expect(result.content).to.equal(newContent);
+					}, done);
+			});
+		});
+
+		describe('using factories', function () {
+			it('should pipe content through user-defined processors', function (done) {
+				var url = '/test/fixtures/file.html';
+				var newContent = 'This information has been changed.';
+				var middleware = resourcePipeline([{url: url, factories: [replaceContent.bind(null, newContent)]}]);
+				testMiddleware(url, middleware)
+					.verify(function (result) {
+						expect(result.nextWasCalled).to.equal(false, 'Next should not have been called');
+						expect(result.content).to.equal(newContent);
+					}, done);
+			});
+		});
 	});
 
 	describe('options', function () {

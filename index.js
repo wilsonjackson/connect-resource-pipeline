@@ -4,15 +4,21 @@ var mime = require('mime');
 var vinyl = require('vinyl-fs');
 var through = require('through2');
 var terminus = require('terminus');
+var chalk = require('chalk');
 
-function sendThroughPipes(files, factories, res, next, urlPath, mimeType) {
+function createPipelineFromFactories(factories) {
+	return function (stream) {
+		factories.forEach(function (factory) {
+			// Send matched files through user-defined pipes
+			stream = stream.pipe(factory());
+		});
+		return stream;
+	};
+}
+
+function sendThroughPipeline(files, pipeline, res, next, urlPath, mimeType) {
 	var numFiles = 0;
-	var stream = vinyl.src(files);
-	factories.forEach(function (factory) {
-		// Send matched files through user-defined pipes
-		stream = stream.pipe(factory());
-	});
-	stream
+	pipeline(vinyl.src(files))
 		.pipe(through.obj(function (file, enc, callback) {
 			// Count files to detect an empty stream
 			++numFiles;
@@ -55,6 +61,11 @@ function resourcePipeline(options, targets) {
 	}
 	var root = options.root || path.join('.', '');
 	var indexFile = options.indexFile || 'index.html';
+
+	if (!targets.every(function (target) {return !target.factories;})) {
+		console.warn(chalk.red('connect-resource-pipeline: "factories" property is deprecated'));
+	}
+
 	return function (req, res, next) {
 		for (var i = 0; i < targets.length; i++) {
 			var urlPath = url.parse(req.url).pathname;
@@ -70,7 +81,8 @@ function resourcePipeline(options, targets) {
 				// If no files are named explicitly, attempt to resolve the file requested of the server.
 				// NOTE: NOT SAFE! This doesn't check for malicious paths, as it is only intended for dev use.
 				var files = resolveFilePaths(root, targets[i].files || urlPath.replace(/^\//, ''));
-				sendThroughPipes(files, targets[i].factories || [], res, next, urlPath, targets[i].mimeType);
+				var pipeline = targets[i].pipeline || createPipelineFromFactories(targets[i].factories || []);
+				sendThroughPipeline(files, pipeline, res, next, urlPath, targets[i].mimeType);
 				return;
 			}
 		}
