@@ -71,7 +71,7 @@ An array that defines URLs to be matched and what to return as a response. Each 
     An array of factories that produce processors (gulp plugins). The matched `files` will be
     piped through each factory's plugin, in order, before being concatenated and sent as a response.
     
-    _This functionality has been deprecated in favor of the far more flexible and gulp-like `pipelines` property._
+    _This functionality has been deprecated in favor of the far more flexible and gulp-like `pipeline` property._
 
 
 Connect compatibility
