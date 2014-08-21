@@ -80,6 +80,31 @@ describe('Connect resource pipeline middleware', function () {
 			}, done);
 	});
 
+	it('should match a directory path and serve an index file', function (done) {
+		var url = '/test/fixtures/';
+		testMiddleware(url, resourcePipeline([{url: url}]))
+			.verify(function (result) {
+				expect(result.content).to.equal(readFile('test/fixtures/index.html'));
+			}, done);
+	});
+
+	it('should match and serve an explicitly referenced index file', function (done) {
+		var url = '/test/fixtures/';
+		testMiddleware(url, resourcePipeline([{url: url + 'index.html'}]))
+			.verify(function (result) {
+				expect(result.content).to.equal(readFile('test/fixtures/index.html'));
+			}, done);
+	});
+
+	it('should allow configuration of a custom index file', function (done) {
+		var indexFile = 'file.html';
+		var url = '/test/fixtures/';
+		testMiddleware(url, resourcePipeline({indexFile: indexFile}, [{url: url}]))
+			.verify(function (result) {
+				expect(result.content).to.equal(readFile('test/fixtures/file.html'));
+			}, done);
+	});
+
 	it('should match and serve a regex url', function (done) {
 		var url = '/test/fixtures/file2.html';
 		var re = /^\/test\/.*\/\w+2\.html/;
@@ -95,6 +120,15 @@ describe('Connect resource pipeline middleware', function () {
 		testMiddleware(url, resourcePipeline([{url: url}]))
 			.verify(function (result) {
 				expect(result.headers['Content-Type']).to.match(/^text\/html/);
+			}, done);
+	});
+
+	it('should allow an explicitly set mime type', function (done) {
+		var url = '/test/fixtures/file.html';
+		var mimeType = 'x-type/x-template';
+		testMiddleware(url, resourcePipeline([{url: url, mimeType: mimeType}]))
+			.verify(function (result) {
+				expect(result.headers['Content-Type']).to.equal(mimeType);
 			}, done);
 	});
 

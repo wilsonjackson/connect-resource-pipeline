@@ -1,4 +1,3 @@
-var util = require('util');
 var path = require('path');
 var url = require('url');
 var mime = require('mime');
@@ -6,7 +5,7 @@ var vinyl = require('vinyl-fs');
 var through = require('through2');
 var terminus = require('terminus');
 
-function sendThroughPipes(files, factories, res, next, urlPath) {
+function sendThroughPipes(files, factories, res, next, urlPath, mimeType) {
 	var numFiles = 0;
 	var stream = vinyl.src(files);
 	factories.forEach(function (factory) {
@@ -23,9 +22,11 @@ function sendThroughPipes(files, factories, res, next, urlPath) {
 		}))
 		.pipe(terminus.concat(function (content) {
 			if (numFiles > 0) {
-				var type = mime.lookup(urlPath);
-				var charset = mime.charsets.lookup(type);
-				res.setHeader('Content-Type', type + (charset ? '; charset=' + charset : ''));
+				if (!mimeType) {
+					mimeType = mime.lookup(urlPath);
+				}
+				var charset = mime.charsets.lookup(mimeType);
+				res.setHeader('Content-Type', mimeType + (charset ? '; charset=' + charset : ''));
 				res.end(content);
 			}
 			else {
@@ -48,20 +49,28 @@ function resolveFilePaths(root, files) {
 }
 
 function resourcePipeline(options, targets) {
-	if (util.isArray(options)) {
+	if (Array.isArray(options)) {
 		targets = options;
 		options = {};
 	}
 	var root = options.root || path.join('.', '');
+	var indexFile = options.indexFile || 'index.html';
 	return function (req, res, next) {
 		for (var i = 0; i < targets.length; i++) {
 			var urlPath = url.parse(req.url).pathname;
+			if (urlPath.substr(-1) === '/') {
+				urlPath += indexFile;
+			}
+			var targetUrl = targets[i].url;
+			if (typeof targetUrl === 'string' && targetUrl.substr(-1) === '/') {
+				targetUrl += indexFile;
+			}
 			// Allow exact URL string or regex(-ish) match
-			if (targets[i].url === urlPath || targets[i].url.test && targets[i].url.test(urlPath)) {
+			if (targetUrl === urlPath || targetUrl.test && targetUrl.test(urlPath)) {
 				// If no files are named explicitly, attempt to resolve the file requested of the server.
 				// NOTE: NOT SAFE! This doesn't check for malicious paths, as it is only intended for dev use.
 				var files = resolveFilePaths(root, targets[i].files || urlPath.replace(/^\//, ''));
-				sendThroughPipes(files, targets[i].factories || [], res, next, urlPath);
+				sendThroughPipes(files, targets[i].factories || [], res, next, urlPath, targets[i].mimeType);
 				return;
 			}
 		}
