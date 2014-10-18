@@ -1,5 +1,8 @@
 /* global describe, it */
-var expect = require('chai').expect;
+var chai = require('chai');
+chai.use(require('sinon-chai'));
+var expect = chai.expect;
+var sinon = require('sinon');
 var resourcePipeline = require('..');
 var fs = require('fs');
 var path = require('path');
@@ -11,6 +14,7 @@ describe('Connect resource pipeline middleware', function () {
 
 	function testMiddleware(url, middleware) {
 		var result = {
+			request: {url: url},
 			endWasCalled: false,
 			nextWasCalled: false,
 			headers: {},
@@ -35,7 +39,7 @@ describe('Connect resource pipeline middleware', function () {
 			d.fulfill(result);
 		}
 
-		middleware({url: url}, response, next);
+		middleware(result.request, response, next);
 
 		return {
 			verify: function (cb, done) {
@@ -174,6 +178,17 @@ describe('Connect resource pipeline middleware', function () {
 					.verify(function (result) {
 						expect(result.nextWasCalled).to.equal(false, 'Next should not have been called');
 						expect(result.content).to.equal(newContent);
+					}, done);
+			});
+
+			it('should call user-provided pipeline with the request object', function (done) {
+				var pipeline = sinon.stub();
+				pipeline.returnsArg(0);
+				var url = '/test/fixtures/file.html';
+				var middleware = resourcePipeline([{url: url, pipeline: pipeline}]);
+				testMiddleware(url, middleware)
+					.verify(function (result) {
+						expect(pipeline).to.have.been.calledWith(sinon.match.any, result.request);
 					}, done);
 			});
 		});

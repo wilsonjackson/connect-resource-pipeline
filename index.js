@@ -16,9 +16,9 @@ function createPipelineFromFactories(factories) {
 	};
 }
 
-function sendThroughPipeline(files, pipeline, res, next, urlPath, mimeType) {
+function sendThroughPipeline(files, pipeline, req, res, next, urlPath, mimeType) {
 	var numFiles = 0;
-	pipeline(vinyl.src(files))
+	pipeline(vinyl.src(files), req)
 		.pipe(through.obj(function (file, enc, callback) {
 			// Count files to detect an empty stream
 			++numFiles;
@@ -82,7 +82,7 @@ function resourcePipeline(options, targets) {
 				// NOTE: NOT SAFE! This doesn't check for malicious paths, as it is only intended for dev use.
 				var files = resolveFilePaths(root, targets[i].files || urlPath.replace(/^\//, ''));
 				var pipeline = targets[i].pipeline || createPipelineFromFactories(targets[i].factories || []);
-				sendThroughPipeline(files, pipeline, res, next, urlPath, targets[i].mimeType);
+				sendThroughPipeline(files, pipeline, req, res, next, urlPath, targets[i].mimeType);
 				return;
 			}
 		}
