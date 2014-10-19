@@ -46,6 +46,7 @@ API
 An object which may contain:
 
 - `path`
+
     Type: `string`
 
     Will be used to prefix all non-absolute paths in `files`, or the URL path if `files` is empty.
@@ -55,17 +56,20 @@ An object which may contain:
 An array that defines URLs to be matched and what to return as a response. Each entry is an object comprised of:
 
 - `url`
+
     Type: `string|RegExp`
 
     The URL to match. Matched against `url.parse(req.url).pathname`.
 
 - `files` (optional)
+
     Type: `string|string[]`
 
     File paths to match. Uses `vinyl-fs` under the hood, so globs are allowed. If omitted, the `pathname` of the
     request will be used.
 
 - `pipeline` (optional)
+
     Type: `function(stream.Readable, Request): stream.Readable`
 
     A function that takes a stream of files as an argument and returns the result stream. The request object is passed
