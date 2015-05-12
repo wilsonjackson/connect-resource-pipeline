@@ -30,6 +30,13 @@ gulp.task('serve', function () {
 });
 ```
 
+Installation
+------------
+
+```
+npm i connect-resource-pipeline --save
+```
+
 API
 ---
 
