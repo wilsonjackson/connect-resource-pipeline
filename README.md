@@ -12,40 +12,34 @@ Instead, do this:
 
 ```js
 var gulp = require('gulp');
-var connect = require('gulp-connect');
-var resourcePipeline = require('connect-resource-pipeline');
+var connect = require('connect');
+var pipeline = require('connect-resource-pipeline');
 var less = require('gulp-less');
 
 gulp.task('serve', function () {
-	connect.server({
-		root: 'public',
-		middleware: function (connect) {
-			return [
-				// Use the resource pipeline middleware
-				connect().use(resourcePipeline({root: 'public'}, [
-					// Define URLs to match and map them to globs (that are automatically concatenated)
-					{url: '/all.js', files: ['js/*.js']},
-					// Pipe through your favorite gulp plugins!
-					{url: '/styles.css', files: ['less/*.less'], pipeline: function (files) {
-						return files.pipe(less());
-					}}
-				]))
-			];
-		}
-	});
+    var app = connect();
+    app.use(pipeline({root: 'public'}, [
+        // Define URLs to match and map them to globs (that are automatically concatenated)
+        {url: '/all.js', files: ['js/*.js']},
+        // Pipe through your favorite gulp plugins!
+        {url: '/styles.css', files: ['less/*.less'], pipeline: function (files) {
+            return files.pipe(less());
+        }}
+    ]));
+    app.listen(8080);
 });
 ```
 
 API
 ---
 
-### resourcePipeline([options, ] targets)
+### var middleware = pipeline([options, ] targets)
 
 #### `options`
 
 An object which may contain:
 
-- `path`
+- `root`
 
     Type: `string`
 
@@ -60,6 +54,13 @@ An array that defines URLs to be matched and what to return as a response. Each 
     Type: `string|RegExp`
 
     The URL to match. Matched against `url.parse(req.url).pathname`.
+
+- `cache` (optional)
+
+    Type: `string|boolean`
+
+    Enables caching of pipeline output. Set to `true` to enable with the URL used as the cache key, or any `string` to
+    enable with `string` used as the cache key.
 
 - `files` (optional)
 
@@ -82,11 +83,40 @@ An array that defines URLs to be matched and what to return as a response. Each 
     
     _This functionality has been deprecated in favor of the far more flexible and gulp-like `pipeline` property._
 
+### middleware.clear([cacheKey])
+
+Clear the contents of `cacheKey` in the internal cache.
+
+Caching
+-------
+
+If you want to cache output and retain the ability to clear the cache (for example within a watch), save a reference to
+the middleware instance you pass to `app.use()`.
+
+```js
+var gulp = require('gulp');
+var connect = require('connect');
+var pipeline = require('connect-resource-pipeline');
+
+gulp.task('serve', function () {
+    var middleware = pipeline([
+        {url: '/all.js', cache: 'js', files: ['public/js/*.js']}
+    ]);
+
+    gulp.watch('public/js/*.js', function () {
+        middleware.clear('js');
+    });
+
+    var app = connect();
+    app.use(middleware);
+    app.listen(8080);
+});
+```
 
 Connect compatibility
 ---------------------
 
-This has only been tested with the 2.0 line of Connect.
+This has been tested with Connect 2.x and 3.x.
 
 Rationale
 ---------
