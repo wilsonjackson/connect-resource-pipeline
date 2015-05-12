@@ -4,7 +4,6 @@ var mime = require('mime');
 var vinyl = require('vinyl-fs');
 var through = require('through2');
 var terminus = require('terminus');
-var chalk = require('chalk');
 
 function createPipelineFromFactories(factories) {
     return function (stream) {
@@ -69,7 +68,7 @@ function resourcePipeline(options, targets) {
     var cache = {};
 
     if (!targets.every(function (target) {return !target.factories;})) {
-        console.warn(chalk.red('connect-resource-pipeline: "factories" property is deprecated'));
+        console.warn('\033[31mconnect-resource-pipeline: "factories" property is deprecated\033[0m');
     }
 
     var middleware = function (req, res, next) {

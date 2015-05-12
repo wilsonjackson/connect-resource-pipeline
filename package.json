@@ -1,6 +1,6 @@
 {
   "name": "connect-resource-pipeline",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Middleware for Connect to allow resource transformation via streams.",
   "main": "index.js",
   "scripts": {
@@ -39,7 +39,6 @@
     "through2": "~0.5.1",
     "vinyl-fs": "~0.3.4",
     "terminus": "~1.0.10",
-    "mime": "~1.2.11",
-    "chalk": "~0.5.1"
+    "mime": "~1.2.11"
   }
 }
