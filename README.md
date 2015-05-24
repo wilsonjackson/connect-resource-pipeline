@@ -76,6 +76,13 @@ An array that defines URLs to be matched and what to return as a response. Each 
     File paths to match. Uses `vinyl-fs` under the hood, so globs are allowed. If omitted, the `pathname` of the
     request will be used.
 
+- `mimeType` (optional)
+
+    Type: `string`
+    
+    Mime type to send in the response headers. If omitted, a mime type will be guessed using the
+    [mime module](https://github.com/broofa/node-mime), based on the matched URL.
+
 - `pipeline` (optional)
 
     Type: `function(stream.Readable, Request): stream.Readable`
